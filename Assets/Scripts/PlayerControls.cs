@@ -14,14 +14,17 @@ public class PlayerControls : MonoBehaviour
     
     // A simple check for animation
     public bool isGrounded;
+    public bool canDoubleJump = true;
     
     // Components of my player
+    private Animator animator;
     private Rigidbody2D playerRb;
     private SpriteRenderer spriteRenderer;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        animator = GetComponent<Animator>();
         playerRb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
@@ -32,6 +35,10 @@ public class PlayerControls : MonoBehaviour
         playerRb.linearVelocityX = moveDirection * moveSpeed;
         
         CheckIfGrounded();
+        
+        animator.SetBool("Is Double Jumping", canDoubleJump == false);
+        animator.SetBool("Is Grounded", isGrounded);
+        animator.SetFloat("Vertical Speed", playerRb.linearVelocityY);
     }
 
     private void OnMove(InputValue inputValue)
@@ -45,13 +52,20 @@ public class PlayerControls : MonoBehaviour
         {
             spriteRenderer.flipX = moveDirection < 0;
         }
+        
+        animator.SetBool("Is Moving", moveDirection != 0);
     }
 
     private void OnJump(InputValue inputValue)
     {
-        if (isGrounded)
+        if (canDoubleJump)
         {
             playerRb.linearVelocityY = jumpForce;
+        }
+
+        if (isGrounded == false && canDoubleJump)
+        {
+            canDoubleJump = false;
         }
     }
 
@@ -71,5 +85,9 @@ public class PlayerControls : MonoBehaviour
 
         // If we found an object, we are grounded
         isGrounded = hit.collider != null;
+        if (isGrounded)
+        {
+            canDoubleJump = true;
+        }
     }
 }
