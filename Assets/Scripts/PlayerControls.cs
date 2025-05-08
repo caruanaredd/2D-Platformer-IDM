@@ -4,20 +4,27 @@ using UnityEngine.InputSystem;
 public class PlayerControls : MonoBehaviour
 {
     // Where we declare variables
+    [Header("Motion Variables")]
     public float moveSpeed = 2;
     public float jumpForce = 4;
 
+    [Header("Game Layers")]
     public LayerMask whatIsGround;
 
     // Controlled by left/right arrows
     private float moveDirection;
     
     // A simple check for animation
+    [Header("Animation Checks")]
     public bool isGrounded;
     public bool canDoubleJump = true;
+
+    [Header("Sound Effects")]
+    public AudioClip jumpClip;
     
     // Components of my player
     private Animator animator;
+    private AudioSource audioSource;
     private Rigidbody2D playerRb;
     private SpriteRenderer spriteRenderer;
     
@@ -25,6 +32,7 @@ public class PlayerControls : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         playerRb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
@@ -61,6 +69,7 @@ public class PlayerControls : MonoBehaviour
         if (canDoubleJump)
         {
             playerRb.linearVelocityY = jumpForce;
+            audioSource.PlayOneShot(jumpClip);
         }
 
         if (isGrounded == false && canDoubleJump)
@@ -81,7 +90,7 @@ public class PlayerControls : MonoBehaviour
             Vector2.down, // cast direction
             0.2f, // maximum distance
             whatIsGround.value
-        );
+        ); 
 
         // If we found an object, we are grounded
         isGrounded = hit.collider != null;
